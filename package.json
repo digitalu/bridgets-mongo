@@ -1,0 +1,37 @@
+{
+  "name": "bridgets-mongo",
+  "version": "1.0.0",
+  "description": "A mongodb ORM on top of mongoose that match perfectly with the bridgets framework",
+  "main": "dist/Lib/index.js",
+  "types": "dist/Lib/index.d.ts",
+  "files": [
+    "/dist"
+  ],
+  "scripts": {
+    "dev": "clear && nodemon --config nodemon.json ./Example/index.ts",
+    "build": "tsc",
+    "remove-dist": "if [ -d dist ]; then rm -rf dist; fi",
+    "publish-minor": "npm run remove-dist && tsc && npm version patch && npm publish"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/digitalu/bridgets-mongo.git"
+  },
+  "keywords": [
+    "Mongoose",
+    "ORM",
+    "Typescript",
+    "BridgeTS"
+  ],
+  "author": "El Ouahabi Nabil",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/digitalu/bridgets-mongo/issues"
+  },
+  "homepage": "https://github.com/digitalu/bridgets-mongo#readme",
+  "devDependencies": {
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.8.0",
+    "typescript": "^4.7.2"
+  }
+}
