@@ -4,8 +4,8 @@ import { Model as MongoModel } from 'mongoose';
 
 type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
 
-export class BridgeMongoModel<DBI, ModelI> implements BMMI<ModelI> {
-  public aggregate: Aggregate<DBI, ModelI>;
+export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
+  public aggregate: Aggregate<ModelI, DBI>;
 
   constructor(private mongoModel: MongoModel<ModelI>) {
     this.aggregate = new Aggregate(this.mongoModel);

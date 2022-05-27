@@ -1,4 +1,4 @@
-import { PipelineStage, FilterQuery } from 'mongoose';
+import { PipelineStage, FilterQuery, ObjectId } from 'mongoose';
 
 type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P };
 type Filter<Data> = Partial<Data> & FilterQuery<Data>;
@@ -8,10 +8,16 @@ type Projection<ModelI> = {
   [key in keyof ModelI]?: ModelI[key] extends Record<any, any> ? proj | Projection<ModelI[key]> : proj;
 };
 
-export interface AggI<AllDBI extends Record<string, any>, ModelI> {
+export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   pipe: PipelineStage[];
 
-  project: <Proj extends Projection<ModelI>>(p: Proj) => AggI<{ [key in keyof ModelI & keyof Proj]: ModelI[key] }, AllDBI>;
+  // paginate: (skip: number, limit: number) => AggI<AllDBI, ModelI>;
+
+  paginate: (skip: number, limit: number) => Promise<{ data: ModelI[]; total: number; skip: number; limit: number }>;
+
+  project: <Proj extends Projection<ModelI>>(
+    p: Proj
+  ) => AggI<{ [key in keyof ModelI & keyof Proj]: ModelI[key] } & { _id: ObjectId }, AllDBI>;
 
   match: (filter: Filter<ModelI>) => AggI<ModelI, AllDBI>;
 
@@ -34,5 +40,5 @@ export interface AggI<AllDBI extends Record<string, any>, ModelI> {
     AllDBI
   >;
 
-  exec: () => Promise<ModelI[]>;
+  // exec: () => Promise<ModelI[]>;
 }

@@ -1,25 +1,28 @@
-import { sayHello } from '../Lib';
-import { User } from './Controllers';
+import routes from './routes';
 import express from 'express';
 import { createExpressMiddleware, onError } from 'bridgets';
 import { api } from './Config';
 import mongoose from 'mongoose';
 
-const routes = { user: new User() };
-
 const app = express();
 
 const errorHandler = onError(({ error, path }) => {
-  if (error.name === 'Internal server error') console.log(error); // Send to bug reporting
-  // else console.log(error);
+  if (error.name === 'Internal server error') console.log(path, error); // Send to bug reporting
+});
+
+app.use('', (req, res, next) => {
+  console.log(req.path);
+  next();
 });
 
 app.use('', createExpressMiddleware(routes, errorHandler));
 
-app.listen(api.port, async () => {
+async function startServer() {
   await mongoose.connect(api.mongoose.url);
 
-  // await DB.user.create({ name: 'Nab', email: 'nabil@digitalu.be' });
+  app.listen(api.port, () =>
+    console.log(`Server listening on port ${api.port}, project: ${api.projectName}, mode: ${api.env}`)
+  );
+}
 
-  console.log(`Server listening on port ${api.port}, project: ${api.projectName}, mode: ${api.env}`);
-});
+startServer();
