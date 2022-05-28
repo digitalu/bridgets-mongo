@@ -65,15 +65,15 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   ) => AggI<
     // Could have written directly ExecProj<ModelI, Proj> but did this not for fun but for VSCode interface readibility
     {
-      [key in keyof Required<ModelI> & keyof Proj]: Proj[key] extends Record<any, any>
+      [key in keyof ModelI & keyof Proj]: Proj[key] extends Record<any, any>
         ? {
-            [key2 in keyof Required<ModelI[key]> & keyof Proj[key]]: Proj[key][key2] extends Record<any, any>
-              ? ExecProj<Required<ModelI[key][key2]>, Proj[key][key2]>
-              : Required<ModelI[key][key2]>;
+            [key2 in keyof ModelI[key] & keyof Proj[key]]: Proj[key][key2] extends Record<any, any>
+              ? ExecProj<ModelI[key][key2], Proj[key][key2]>
+              : ModelI[key][key2];
           } & {
             _id: ObjectId;
           }
-        : Required<ModelI[key]>;
+        : ModelI[key];
     } & {
       _id: ObjectId;
     },
