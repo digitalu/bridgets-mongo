@@ -5,11 +5,9 @@ import { Model as MongoModel } from 'mongoose';
 type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
 
 export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
-  public aggregate: Aggregate<ModelI, DBI>;
+  constructor(public mongoModel: MongoModel<ModelI>) {}
 
-  constructor(public mongoModel: MongoModel<ModelI>) {
-    this.aggregate = new Aggregate(this.mongoModel);
-  }
+  public aggregate = () => new Aggregate<ModelI, DBI>(this.mongoModel);
 
   public create: BMMI<ModelI>['create'] = async (data) => {
     const res: any = ((await this.mongoModel.create(data)) as any).toJSON();

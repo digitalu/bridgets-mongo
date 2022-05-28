@@ -44,27 +44,21 @@ export class User extends Controller {
   getPage = this.handler({
     query: ZO({ name: name.optional(), email: email.optional() }),
     resolve: async ({ query }) => {
-      const res2 = await DB.user.aggregate
-        .project({ name: 1, email: 1 })
+      const res = await DB.user
+        .aggregate()
+        .project({ name: 1, email: 1, age: 1 })
         .match(query || {})
         .lookup({ from: 'publications', as: 'yo', let: { userId: '$_id' } }, (pub, { userId }) =>
-          pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1, user: 1 })
+          pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
         )
-        // .unwind({ path: '$yo', preserveNullAndEmptyArrays: true })
+        .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })
+        .project({ name: 1, age: 1, yo: { text: 1 } })
+        .limit(1)
+        .unset('age')
         .sort({ name: -1 })
         .paginate(0, 10);
 
-      const res = await DB.user.aggregate
-        .match(query)
-        .project({ name: 1, email: 1 })
-        .lookup({ from: 'publications', as: 'publi', let: { usrID: '$_id' } }, (pub, { usrID }) =>
-          pub.match({ $expr: { $eq: ['$user', usrID] } })
-        )
-        .sort({ name: -1 })
-        // .unwind({ path: '$publi' })
-        .paginate(0, 5);
-
-      // res.data[0].
+      // res.data[0].yo.
 
       // const resBefore = await DB.user.mongoModel.aggregate([
       //   { $project: { name: 1, email: 1 } },
@@ -85,20 +79,6 @@ export class User extends Controller {
       //     },
       //   },
       // ]);
-
-      // console.log(
-      //   (
-      //     DB.user.aggregate
-      //       .project({ name: 1, email: 1 })
-      //       .match(query || {})
-      //       .lookup({ from: 'publications', as: 'yo', let: { userId: '$_id' } }, (pub, { userId }) =>
-      //         pub.match({ $expr: { $eq: ['$user', userId] } })
-      //       )
-      //       .sort({ name: -1 }).pipe[2] as any
-      //   )['$lookup'].pipeline[0]['$match']['$expr']
-      // );
-
-      // const test = await DB.publication.create({text: "", user: ""})
 
       return res;
     },

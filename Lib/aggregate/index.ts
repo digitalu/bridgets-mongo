@@ -23,12 +23,17 @@ export class Aggregate<ModelI, AllDBI> implements AggI<ModelI, AllDBI> {
     Object.keys(lookupParam.let || {}).forEach((key) => {
       paramLookupAggregate[key] = `$$${key}`;
     });
-    console.log(lookupParam.let, paramLookupAggregate);
 
     lookup.pipeline = aggregateMethod(new Aggregate(), paramLookupAggregate).pipe;
 
     return new Aggregate(this.mongoModel, [...this.pipe, { $lookup: lookup }]) as any;
   };
+
+  public unset: AggI<ModelI, AllDBI>['unset'] = (unset) =>
+    new Aggregate(this.mongoModel, [...this.pipe, { $unset: unset } as any]) as any;
+
+  public limit: AggI<ModelI, AllDBI>['limit'] = (limit) =>
+    new Aggregate(this.mongoModel, [...this.pipe, { $limit: limit } as any]) as any;
 
   public unwind: AggI<ModelI, AllDBI>['unwind'] = (unwind) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $unwind: unwind } as any]) as any;
@@ -44,9 +49,7 @@ export class Aggregate<ModelI, AllDBI> implements AggI<ModelI, AllDBI> {
       },
     });
 
-    const res: any = await this.mongoModel.aggregate(this.pipe);
-
-    this.pipe = [];
+    const res = await this.mongoModel.aggregate(this.pipe);
 
     return {
       data: res[0].data,

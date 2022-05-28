@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import { DBTypes } from './type';
 import { z, ZodType } from 'zod';
-import { BridgeMongoModel } from '../../Lib/db';
+import BridgeMongoModel from '../../Lib';
 
 type ZodSchema<T> = { [key in keyof T]-?: ZodType<T[key]> };
 

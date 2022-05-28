@@ -1,4 +1,4 @@
-type StrictPropertyCheck<T, TExpected, TError> = Exclude<keyof T, keyof TExpected> extends never ? {} : TError;
+export type StrictPropertyCheck<T, TExpected, TError> = Exclude<keyof T, keyof TExpected> extends never ? {} : TError;
 
 type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P };
 // type OverrideProps<M, N> = { [P in keyof M]: P extends keyof N ? N[P] : M[P] };
@@ -10,7 +10,11 @@ export type CreateData<ModelI> = Omit<ModelI, '_id' | 'createdAt' | 'updatedAt'>
 export type CreateDataParam<C, ModelI> = C &
   StrictPropertyCheck<C, CreateData<ModelI>, 'Only property of the model are allowed'>;
 
-export type Filter<Data> = Partial<Data>; //& FilterQuery<Data>;
+export type Filter<Data> = Partial<Data> & { $expr?: Filter<Data> } & { $and?: Array<Filter<Data>> } & {
+  $eq?: [`$${keyof Data extends string ? keyof Data : never}`, string];
+} & {
+  $ne?: [`$${keyof Data extends string ? keyof Data : never}`, string];
+}; //& FilterQuery<Data>;
 
 export type FilterParam<F, ModelI> = F & StrictPropertyCheck<F, Filter<ModelI>, 'Only property of the model are allowed'>;
 

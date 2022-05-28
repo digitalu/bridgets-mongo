@@ -1,3 +1,4 @@
-export const sayHello = () => {
-  console.log('hello');
-};
+import { BridgeMongoModel } from './db';
+
+export default BridgeMongoModel;
+export { BridgeMongoModel } from './db';
