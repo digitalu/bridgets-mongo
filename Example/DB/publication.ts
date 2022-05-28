@@ -9,8 +9,8 @@ export const publicationZod: ZodSchema<DBTypes['publication']> = {
   _id: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i),
   text: z.string(),
   user: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i),
-  //   createdAt: z.date(),
-  //   updatedAt: z.date(),
+  createdAt: z.date(),
+  updatedAt: z.date(),
 };
 
 const publicationSchema = new Schema<DBTypes['publication']>(

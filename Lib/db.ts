@@ -7,7 +7,7 @@ type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
 export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
   public aggregate: Aggregate<ModelI, DBI>;
 
-  constructor(private mongoModel: MongoModel<ModelI>) {
+  constructor(public mongoModel: MongoModel<ModelI>) {
     this.aggregate = new Aggregate(this.mongoModel);
   }
 

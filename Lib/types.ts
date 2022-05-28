@@ -1,25 +1,4 @@
-import { ObjectId, FilterQuery, UpdateQuery } from 'mongoose';
-
-type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P };
-// type OverrideProps<M, N> = { [P in keyof M]: P extends keyof N ? N[P] : M[P] };
-
-type ProjElement = 0 | 1;
-type Projection<ModelI> = { [key in keyof ModelI]?: ProjElement };
-
-type CreateData<ModelI> = Omit<ModelI, '_id' | 'createdAt' | 'updatedAt'>;
-type CreateDataParam<C, ModelI> = C & StrictPropertyCheck<C, CreateData<ModelI>, 'Only property of the model are allowed'>;
-
-type Filter<Data> = Partial<Data>; //& FilterQuery<Data>;
-type FilterParam<F, ModelI> = F & StrictPropertyCheck<F, Filter<ModelI>, 'Only property of the model are allowed'>;
-
-type StrictPropertyCheck<T, TExpected, TError> = Exclude<keyof T, keyof TExpected> extends never ? {} : TError;
-
-type UpdateData<Data> = Partial<Data> & {
-  $inc?: { [key in KeysWithValsOfType<Required<Data>, number>]?: number };
-  $push?: { [key in keyof Required<Data>]?: Required<Data>[key] extends Array<infer T> ? T : never };
-};
-type UpdateDataParam<UD, ModelI> = UD &
-  StrictPropertyCheck<UD, UpdateData<ModelI>, 'Only property of the model are allowed'>;
+import { CreateData, CreateDataParam, Projection, FilterParam, Filter, UpdateData, UpdateDataParam } from './utility';
 
 export interface BridgeMongoModelI<ModelI> {
   create: <Crea extends CreateData<ModelI>>(

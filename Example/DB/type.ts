@@ -12,5 +12,7 @@ export type DBTypes = {
     _id: string;
     text: string;
     user: string;
+    createdAt: Date;
+    updatedAt: Date;
   };
 };

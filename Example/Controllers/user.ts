@@ -31,26 +31,72 @@ export class User extends Controller {
   });
 
   updateOne = this.handler({
-    query: ZO({ _id: _id }),
-    body: ZO({ name: name }),
-    resolve: async ({ query, body }) => DB.user.updateOne(query, {}, { name: 1, email: 1 }),
+    query: ZO({ _id }),
+    body: ZO({ name }),
+    resolve: async ({ query, body }) => DB.user.updateOne(query, body, { name: 1, email: 1 }),
   });
 
   deleteOne = this.handler({
     query: ZO({ _id }),
-    resolve: async ({ query }) => {
-      // query
-      const j = { _id: 'string', jj: 'string' };
-      return DB.user.deleteOne(query);
-    },
+    resolve: async ({ query }) => DB.user.deleteOne(query),
   });
 
   getPage = this.handler({
-    resolve: async () => {
-      const res = await DB.user.aggregate
+    query: ZO({ name: name.optional(), email: email.optional() }),
+    resolve: async ({ query }) => {
+      const res2 = await DB.user.aggregate
         .project({ name: 1, email: 1 })
-        .lookup({ from: 'publication', let: { userId: '_id' } }, (pub, { userId }) => pub)
+        .match(query || {})
+        .lookup({ from: 'publications', as: 'yo', let: { userId: '$_id' } }, (pub, { userId }) =>
+          pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1, user: 1 })
+        )
+        // .unwind({ path: '$yo', preserveNullAndEmptyArrays: true })
+        .sort({ name: -1 })
         .paginate(0, 10);
+
+      const res = await DB.user.aggregate
+        .match(query)
+        .project({ name: 1, email: 1 })
+        .lookup({ from: 'publications', as: 'publi', let: { usrID: '$_id' } }, (pub, { usrID }) =>
+          pub.match({ $expr: { $eq: ['$user', usrID] } })
+        )
+        .sort({ name: -1 })
+        // .unwind({ path: '$publi' })
+        .paginate(0, 5);
+
+      // res.data[0].
+
+      // const resBefore = await DB.user.mongoModel.aggregate([
+      //   { $project: { name: 1, email: 1 } },
+      //   { $match: query || {} },
+      //   {
+      //     $lookup: {
+      //       from: '$publications',
+      //       as: 'yo',
+      //       let: { userId: '$_id' },
+      //       pipeline: [{ $match: { $expr: { $eq: ['$user', '$$userId'] } } }, { $project: { text: 1, user: 1 } }],
+      //     },
+      //   },
+      //   { $sort: { name: -1 } },
+      //   {
+      //     $facet: {
+      //       metadata: [{ $count: 'total' }],
+      //       data: [{ $skip: 0 }, { $limit: 10 }],
+      //     },
+      //   },
+      // ]);
+
+      // console.log(
+      //   (
+      //     DB.user.aggregate
+      //       .project({ name: 1, email: 1 })
+      //       .match(query || {})
+      //       .lookup({ from: 'publications', as: 'yo', let: { userId: '$_id' } }, (pub, { userId }) =>
+      //         pub.match({ $expr: { $eq: ['$user', userId] } })
+      //       )
+      //       .sort({ name: -1 }).pipe[2] as any
+      //   )['$lookup'].pipeline[0]['$match']['$expr']
+      // );
 
       // const test = await DB.publication.create({text: "", user: ""})
 
