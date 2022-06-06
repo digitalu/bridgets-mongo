@@ -10,6 +10,7 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
   public aggregate = () => new Aggregate<ModelI, DBI>(this.mongoModel);
 
   public create: BMMI<ModelI>['create'] = async (data) => {
+    // AH
     try {
       const res: any = ((await this.mongoModel.create(data)) as any).toJSON();
       delete res.__v;
