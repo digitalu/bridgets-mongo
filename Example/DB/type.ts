@@ -5,6 +5,7 @@ export type DBTypes = {
     email: string;
     avatar?: string;
     age?: number;
+    list?: Array<string>;
     createdAt: Date;
     updatedAt: Date;
   };

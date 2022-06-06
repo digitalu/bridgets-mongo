@@ -10,7 +10,11 @@ export type CreateData<ModelI> = Omit<ModelI, '_id' | 'createdAt' | 'updatedAt'>
 export type CreateDataParam<C, ModelI> = C &
   StrictPropertyCheck<C, CreateData<ModelI>, 'Only property of the model are allowed'>;
 
-export type Filter<Data> = Partial<Data> & { $expr?: Filter<Data> } & { $and?: Array<Filter<Data>> } & {
+export type Filter<Data> = {
+  [key in keyof Data]?: Partial<Data[key]> extends Array<infer TArr> | undefined ? TArr | Data[key] : Data[key];
+} & {
+  $expr?: Filter<Data>;
+} & { $and?: Array<Filter<Data>> } & {
   $eq?: [`$${keyof Data extends string ? keyof Data : never}`, string];
 } & {
   $ne?: [`$${keyof Data extends string ? keyof Data : never}`, string];

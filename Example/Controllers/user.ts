@@ -17,7 +17,7 @@ export class User extends Controller {
 
   findOne = this.handler({
     body: ZO({ _id }),
-    resolve: async ({ body }) => DB.user.findOne(body, { name: 1 }),
+    resolve: async ({ body }) => DB.user.findOne({ list: '' }, { name: 1 }),
   });
 
   exists = this.handler({

@@ -11,6 +11,7 @@ export const userZod: ZodSchema<DBTypes['user']> = {
   email: z.string().email(),
   avatar: z.string(),
   age: z.number(),
+  list: z.array(z.string()),
   createdAt: z.date(),
   updatedAt: z.date(),
 };
@@ -19,6 +20,7 @@ const userSchema = new Schema<DBTypes['user']>(
   {
     name: { type: String, required: true },
     email: { type: String, required: true },
+    list: [String],
     avatar: String,
     age: Number,
   },

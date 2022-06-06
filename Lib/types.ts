@@ -5,7 +5,7 @@ export interface BridgeMongoModelI<ModelI> {
     p: CreateDataParam<Crea, ModelI>
   ) => Promise<
     | (Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {}))
-    | { error: { status: 409; message: 'Already exists' } }
+    | { error: { status: 409; message: 'Already exists'; data: Record<any, any> } }
   >;
 
   findOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>>(

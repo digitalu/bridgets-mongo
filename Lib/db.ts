@@ -43,7 +43,7 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
   });
 
   public count: BMMI<ModelI>['count'] = async (filter) => ({
-    total: await this.mongoModel.countDocuments(filter),
+    total: await this.mongoModel.countDocuments(filter as any),
   });
 
   public deleteOne: BMMI<ModelI>['deleteOne'] = async (filter) => {
