@@ -10,13 +10,14 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
   public aggregate = () => new Aggregate<ModelI, DBI>(this.mongoModel);
 
   public create: BMMI<ModelI>['create'] = async (data) => {
-    const res: any = (
-      (await this.mongoModel.create(data).catch((err) => {
-        return { error: { status: 409, message: 'Already exists' } };
-      })) as any
-    ).toJSON();
-    delete res.__v;
-    return res;
+    try {
+      const res: any = ((await this.mongoModel.create(data)) as any).toJSON();
+      delete res.__v;
+      return res;
+    } catch (err: any) {
+      if (err.message.code !== 11000) throw new Error('Error create mongo not handled: ', err);
+      return { error: { status: 409, message: 'Already exists' } };
+    }
   };
 
   public findOne: BMMI<ModelI>['findOne'] = async (filter, proj) => {
