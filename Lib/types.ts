@@ -3,7 +3,10 @@ import { CreateData, CreateDataParam, Projection, FilterParam, Filter, UpdateDat
 export interface BridgeMongoModelI<ModelI> {
   create: <Crea extends CreateData<ModelI>>(
     p: CreateDataParam<Crea, ModelI>
-  ) => Promise<Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {})>;
+  ) => Promise<
+    | (Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {}))
+    | { error: { status: 409; message: 'Already exists' } }
+  >;
 
   findOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>>(
     filter: FilterParam<Fil, ModelI>,
