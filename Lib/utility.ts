@@ -6,6 +6,8 @@ type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : ne
 type ProjElement = 0 | 1;
 export type Projection<ModelI> = { [key in keyof ModelI]?: ProjElement };
 
+type WithDollar<T extends string> = `$${T}`;
+
 export type CreateData<ModelI> = Omit<ModelI, '_id' | 'createdAt' | 'updatedAt'>;
 export type CreateDataParam<C, ModelI> = C &
   StrictPropertyCheck<C, CreateData<ModelI>, 'Only property of the model are allowed'>;
@@ -15,7 +17,7 @@ export type Filter<Data> = {
 } & {
   $expr?: Filter<Data>;
 } & { $and?: Array<Filter<Data>> } & {
-  $eq?: [`$${keyof Data extends string ? keyof Data : never}`, string];
+  $eq?: [WithDollar<keyof Data extends string ? keyof Data : ''>, string];
 } & {
   $ne?: [`$${keyof Data extends string ? keyof Data : never}`, string];
 }; //& FilterQuery<Data>;

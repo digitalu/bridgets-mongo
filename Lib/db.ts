@@ -1,5 +1,6 @@
 import { BridgeMongoModelI } from './types';
 import { Aggregate } from './aggregate';
+import { AggI } from './aggregate/type';
 import { Model as MongoModel } from 'mongoose';
 
 type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
@@ -7,7 +8,7 @@ type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
 export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
   constructor(public mongoModel: MongoModel<ModelI>) {}
 
-  public aggregate = () => new Aggregate<ModelI, DBI>(this.mongoModel);
+  public aggregate = (): AggI<ModelI, DBI> => new Aggregate<ModelI, DBI>(this.mongoModel);
 
   public create: BMMI<ModelI>['create'] = async (data) => {
     try {

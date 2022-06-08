@@ -48,8 +48,10 @@ export class User extends Controller {
         .aggregate()
         .project({ name: 1, email: 1, age: 1 })
         .match(query || {})
-        .lookup({ from: 'publications', as: 'yo', let: { userId: '$_id' } }, (pub, { userId }) =>
-          pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
+        .lookup(
+          { from: 'publications', as: 'yo', let: { userId: '$_id' } },
+          (pub, { userId }) => pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
+          // pub.match({$expr: {$eq: [""]}})
         )
         .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })
         .project({ name: 1, age: 1, yo: { text: 1 } })
