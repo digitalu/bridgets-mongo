@@ -14,6 +14,9 @@ export const userZod: ZodSchema<DBTypes['user']> = {
   list: z.array(z.string()),
   createdAt: z.date(),
   updatedAt: z.date(),
+  emailPreferences: z.object({
+    event: z.boolean(),
+  }),
 };
 
 const userSchema = new Schema<DBTypes['user']>(
