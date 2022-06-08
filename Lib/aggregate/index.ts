@@ -1,6 +1,6 @@
 import { Model as MongoModel, PipelineStage } from 'mongoose';
 // @ts-ignore
-import plural from 'plural';
+import plural from 'pluralize';
 import { AggI } from './type';
 
 export class Aggregate<ModelI, AllDBI> implements AggI<ModelI, AllDBI> {

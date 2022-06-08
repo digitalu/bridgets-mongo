@@ -1,5 +1,5 @@
-const plural = require("plural")
+const pluralize = require("pluralize")
 
-console.log(plural("woman"))
-console.log(plural("admin"))
-console.log(plural("dish"))
+console.log(pluralize("woman"))
+console.log(pluralize("admin"))
+console.log(pluralize("dish"))
