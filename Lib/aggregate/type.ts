@@ -85,7 +85,6 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   lookup: <
     Let extends Record<string, `$${keyof ModelI extends string ? keyof ModelI : never}`>,
     From extends keyof AllDBI & string,
-    NewModel,
     AS extends string = From
   >(
     p1: { from: Plurial<From>; as: AS; let?: Let },
@@ -94,8 +93,8 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
       p2: {
         [key in keyof Let]: `$$${key extends string ? key : never}`;
       }
-    ) => AggI<NewModel, AllDBI>
-  ) => AggI<ModelI & { [P in AS]: NewModel[] }, AllDBI>;
+    ) => AggI<AllDBI[From], AllDBI>
+  ) => AggI<ModelI & { [P in AS]: AllDBI[From][] }, AllDBI>;
 
   unwind: <
     KeyOfArrayToUnwind extends keyof ModelI & KeysWithValsOfType<ModelI, Array<any>>,
