@@ -17,9 +17,9 @@ export type Filter<Data> = {
     ? TArr | Data[key]
     : Data[key] | { $gt?: Data[key]; $gte?: Data[key]; $lt?: Data[key]; $lte?: Data[key] };
 } & {
-  [key in keyof Data as Data[key] extends Array<any> ? `${key extends string ? key : ''}.${number}` : never]?: {
-    $exists?: boolean;
-  };
+  [key in keyof Data as Data[key] extends Array<any>
+    ? `${key extends string ? key : ''}.${number}`
+    : never]?: Data[key] extends Array<infer SubData> ? Filter<SubData> : never;
 } & {
   $expr?: Filter<Data>;
 } & { $and?: Array<Filter<Data>> } & {
