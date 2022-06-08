@@ -3,13 +3,7 @@ import { Filter, FilterParam, StrictPropertyCheck } from '../utility';
 
 type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P };
 
-interface Test {
-  ah: {
-    oui: '';
-  };
-  h: '';
-}
-
+type Plurial<T extends string> = T extends `${string}${'s' | 'sh' | 'ch' | 'x' | 'z'}` ? `${T}es` : `${T}s`;
 // let a: Test['ah.oui']
 
 type FlatPath<T> = keyof {
@@ -94,7 +88,7 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
     NewModel,
     AS extends string = From
   >(
-    p1: { from: `${From}${'s'}`; as: AS; let?: Let },
+    p1: { from: Plurial<From>; as: AS; let?: Let },
     p2: (
       p1: AggI<AllDBI[From], AllDBI>,
       p2: {

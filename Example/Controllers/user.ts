@@ -32,8 +32,8 @@ export class User extends Controller {
 
   updateOne = this.handler({
     query: ZO({ _id }),
-    body: ZO({ name }),
-    resolve: async ({ query, body }) => DB.user.updateOne(query, body, { name: 1, email: 1 }),
+    body: ZO({ event: z.boolean() }),
+    resolve: async ({ query, body }) => DB.user.updateOne(query, { emailPreferences: body }, { name: 1, email: 1 }),
   });
 
   deleteOne = this.handler({
