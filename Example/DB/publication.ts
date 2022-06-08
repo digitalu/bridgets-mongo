@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import { Schema, model, PopulatedDoc } from 'mongoose';
 import { DBTypes } from './type';
 import { z, ZodType } from 'zod';
 import { BridgeMongoModel } from '../../Lib';
@@ -16,7 +16,7 @@ export const publicationZod: ZodSchema<DBTypes['publication']> = {
 const publicationSchema = new Schema<DBTypes['publication']>(
   {
     text: { type: String, required: true },
-    user: { type: Schema.Types.ObjectId, ref: 'User' },
+    user: Schema.Types.ObjectId,
   },
   { timestamps: true }
 );
