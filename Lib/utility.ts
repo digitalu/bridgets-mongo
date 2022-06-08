@@ -19,7 +19,7 @@ export type Filter<Data> = {
 } & {
   [key in keyof Data as Data[key] extends Array<any>
     ? `${key extends string ? key : ''}.${number}`
-    : never]?: Data[key] extends Array<infer SubData> ? Filter<SubData> : never;
+    : never]?: Data[key] extends Array<infer SubData> ? Filter<SubData> | { $exists?: boolean } : never;
 } & {
   $expr?: Filter<Data>;
 } & { $and?: Array<Filter<Data>> } & {
