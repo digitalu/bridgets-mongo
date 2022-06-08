@@ -1,4 +1,6 @@
 import { Model as MongoModel, PipelineStage } from 'mongoose';
+// @ts-ignore
+import plural from 'plural';
 import { AggI } from './type';
 
 export class Aggregate<ModelI, AllDBI> implements AggI<ModelI, AllDBI> {
@@ -12,7 +14,7 @@ export class Aggregate<ModelI, AllDBI> implements AggI<ModelI, AllDBI> {
 
   public lookup: AggI<ModelI, AllDBI>['lookup'] = (lookupParam, aggregateMethod) => {
     let lookup: any = {
-      from: lookupParam.from,
+      from: plural(lookupParam.from),
       as: lookupParam.as,
     };
 

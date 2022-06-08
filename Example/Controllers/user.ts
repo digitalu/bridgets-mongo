@@ -49,8 +49,9 @@ export class User extends Controller {
         .project({ name: 1, email: 1, age: 1 })
         .match(query || {})
         .lookup(
-          { from: 'publications', as: 'yo', let: { userId: '$_id' } },
+          { from: 'publication', as: 'yo', let: { userId: '$_id' } },
           (pub, { userId }) => pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
+          //pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
           // pub.match({$expr: {$eq: [""]}})
         )
         .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })
