@@ -13,7 +13,13 @@ export type CreateDataParam<C, ModelI> = C &
   StrictPropertyCheck<C, CreateData<ModelI>, 'Only property of the model are allowed'>;
 
 export type Filter<Data> = {
-  [key in keyof Data]?: Partial<Data[key]> extends Array<infer TArr> | undefined ? TArr | Data[key] : Data[key];
+  [key in keyof Data]?: Partial<Data[key]> extends Array<infer TArr> | undefined
+    ? TArr | Data[key]
+    : Data[key] | { $gt?: Data[key]; $gte?: Data[key]; $lt?: Data[key]; $lte?: Data[key] };
+} & {
+  [key in keyof Data as Data[key] extends Array<any> ? `${key extends string ? key : ''}.${number}` : never]?: {
+    $exists?: boolean;
+  };
 } & {
   $expr?: Filter<Data>;
 } & { $and?: Array<Filter<Data>> } & {
