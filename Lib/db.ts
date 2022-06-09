@@ -17,7 +17,7 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
       return res;
     } catch (err: any) {
       if (err.code !== 11000) throw new Error('Error create mongo not handled: ', err);
-      return { error: { status: 409, message: 'Already exists', data: err.keyValue } };
+      return { error: { status: 409, name: 'Already exists', data: err.keyValue } };
     }
   };
 
