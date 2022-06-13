@@ -1,4 +1,4 @@
-import { PipelineStage, FilterQuery, ObjectId } from 'mongoose';
+import { PipelineStage, FilterQuery } from 'mongoose';
 import { Filter, FilterParam, StrictPropertyCheck } from '../utility';
 
 type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P };
@@ -8,9 +8,7 @@ type Plurial<T extends string> = T extends `${string}${'s' | 'sh' | 'ch' | 'x' |
 
 type FlatPath<T> = keyof {
   [key in keyof T as T[key] extends Record<any, any>
-    ? T[key] extends ObjectId
-      ? keyof T
-      : `${key extends string ? key : ''}.${FlatPath<T[key]> extends string ? FlatPath<T[key]> : ''}`
+    ? `${key extends string ? key : ''}.${FlatPath<T[key]> extends string ? FlatPath<T[key]> : ''}`
     : keyof T]: 1;
 };
 
@@ -44,7 +42,7 @@ type ExtractFromPath<Path extends string, Obj extends any> = Path extends `${inf
 type ExecProj<ModelI, Proj extends Projection<ModelI>> = {
   [key in keyof ModelI & keyof Proj]: Proj[key] extends Record<any, any> ? ExecProj<ModelI[key], Proj[key]> : ModelI[key];
 } & {
-  _id: ObjectId;
+  _id: string;
 };
 
 export interface AggI<ModelI, AllDBI extends Record<string, any>> {
@@ -65,11 +63,11 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
               ? ExecProj<ModelI[key][key2], Proj[key][key2]>
               : ModelI[key][key2];
           } & {
-            _id: ObjectId;
+            _id: string;
           }
         : ModelI[key];
     } & {
-      _id: ObjectId;
+      _id: string;
     },
     AllDBI
   >;
