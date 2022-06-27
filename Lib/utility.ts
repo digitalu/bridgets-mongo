@@ -22,7 +22,7 @@ export type Filter<Data> = {
     : never]?: Data[key] extends Array<infer SubData> ? Filter<SubData> | { $exists?: boolean } : never;
 } & {
   $expr?: Filter<Data>;
-} & { $and?: Array<Filter<Data>> } & {
+} & { $and?: Array<Filter<Data>> } & { $or?: Array<Filter<Data>> } & {
   $eq?: [WithDollar<keyof Data extends string ? keyof Data : ''>, string];
 } & {
   $ne?: [`$${keyof Data extends string ? keyof Data : never}`, string];
