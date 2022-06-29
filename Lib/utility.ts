@@ -15,7 +15,16 @@ export type CreateDataParam<C, ModelI> = C &
 export type Filter<Data> = {
   [key in keyof Data]?: Partial<Data[key]> extends Array<infer TArr> | undefined
     ? TArr | Data[key]
-    : Data[key] | { $gt?: Data[key]; $gte?: Data[key]; $lt?: Data[key]; $lte?: Data[key] };
+    :
+        | Data[key]
+        | {
+            $gt?: Data[key];
+            $gte?: Data[key];
+            $lt?: Data[key];
+            $lte?: Data[key];
+            $in?: Array<Data[key]>;
+            $nin?: Array<Data[key]>;
+          };
 } & {
   [key in keyof Data as Data[key] extends Array<any>
     ? `${key extends string ? key : ''}.${number}`
