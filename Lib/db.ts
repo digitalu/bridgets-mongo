@@ -5,14 +5,16 @@ import { Model as MongoModel } from 'mongoose';
 
 type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
 
-export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
+export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implements BMMI<ModelI> {
   constructor(public mongoModel: MongoModel<ModelI>) {}
 
   public aggregate = (): AggI<ModelI, DBI> => new Aggregate<ModelI, DBI>(this.mongoModel);
 
-  public create: BMMI<ModelI>['create'] = async (data) => {
+  public create: BMMI<ModelI>['create'] = async (data, opts) => {
     try {
-      const res: any = ((await this.mongoModel.create(data)) as any).toJSON();
+      if (!('length' in data)) data = [data];
+      const options = opts?.session ? { session: opts.session } : {};
+      const res: any = ((await this.mongoModel.create(data), options) as any).toJSON();
       delete res.__v;
       return res;
     } catch (err: any) {
@@ -21,8 +23,9 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
     }
   };
 
-  public findOne: BMMI<ModelI>['findOne'] = async (filter, proj) => {
-    const promise = this.mongoModel.findOne(filter);
+  public findOne: BMMI<ModelI>['findOne'] = async (filter, proj, opts) => {
+    const options = opts?.session ? { session: opts.session } : {};
+    const promise = this.mongoModel.findOne(filter, options);
     const res = proj ? await promise.select(proj).lean() : await promise.lean();
 
     if (!res) return { error: { status: 404, name: 'Document not found' } };
@@ -30,8 +33,9 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
     return res as any;
   };
 
-  public updateOne: BMMI<ModelI>['updateOne'] = async (filter, dataToUpdate, proj) => {
-    const promise = (this.mongoModel as any).findOneAndUpdate(filter, dataToUpdate, { new: true });
+  public updateOne: BMMI<ModelI>['updateOne'] = async (filter, dataToUpdate, proj, opts) => {
+    const options = opts?.session ? { session: opts.session, new: true } : { new: true };
+    const promise = (this.mongoModel as any).findOneAndUpdate(filter, dataToUpdate, options);
     const res = proj ? await promise.select(proj).lean() : await promise.lean();
 
     if (!res) return { error: { status: 404, name: 'Document not found' } };
@@ -47,9 +51,17 @@ export class BridgeMongoModel<ModelI, DBI> implements BMMI<ModelI> {
     total: await this.mongoModel.countDocuments(filter as any),
   });
 
-  public deleteOne: BMMI<ModelI>['deleteOne'] = async (filter) => {
-    const res: any = await this.mongoModel.deleteOne(filter);
+  public deleteOne: BMMI<ModelI>['deleteOne'] = async (filter, opts) => {
+    const options = opts?.session ? { session: opts.session } : {};
+    const res: any = await this.mongoModel.deleteOne(filter, options);
 
-    return { deleted: res.deletedCount !== 0 } as any;
+    return { deleted: res.deletedCount !== 0 };
+  };
+
+  public deleteMany: BMMI<ModelI>['deleteMany'] = async (filter, opts) => {
+    const options = opts?.session ? { session: opts.session } : {};
+    const res: any = await this.mongoModel.deleteOne(filter, options);
+
+    return { deletedCount: res.deletedCount };
   };
 }

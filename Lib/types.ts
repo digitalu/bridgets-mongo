@@ -1,8 +1,10 @@
 import { CreateData, CreateDataParam, Projection, FilterParam, Filter, UpdateData, UpdateDataParam } from './utility';
+import { ClientSession } from 'mongoose';
 
 export interface BridgeMongoModelI<ModelI> {
   create: <Crea extends CreateData<ModelI>>(
-    p: CreateDataParam<Crea, ModelI>
+    p: CreateDataParam<Crea, ModelI> | Array<CreateDataParam<Crea, ModelI>>,
+    opts?: { session?: ClientSession }
   ) => Promise<
     | (Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {}))
     | { error: { status: 409; name: 'Already exists'; data: Record<any, any> } }
@@ -10,7 +12,8 @@ export interface BridgeMongoModelI<ModelI> {
 
   findOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>>(
     filter: FilterParam<Fil, ModelI>,
-    proj?: Proj
+    proj?: Proj,
+    opts?: { session?: ClientSession }
   ) => Promise<
     | ({ [key in keyof ModelI & keyof Proj]: Proj[key] extends 1 ? ModelI[key] : never } & { _id: string })
     | { error: { status: 404; name: 'Document not found' } }
@@ -19,7 +22,8 @@ export interface BridgeMongoModelI<ModelI> {
   updateOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>, Upd extends UpdateData<ModelI>>(
     filter: FilterParam<Fil, ModelI>,
     dataToUpdate: UpdateDataParam<Upd, ModelI>,
-    proj?: Proj
+    proj?: Proj,
+    opts?: { session?: ClientSession }
   ) => Promise<
     | ({ [key in keyof ModelI & keyof Proj]: Proj[key] extends 0 ? never : ModelI[key] } & { _id: string })
     | { error: { status: 404; name: 'Document not found' } }
@@ -29,7 +33,15 @@ export interface BridgeMongoModelI<ModelI> {
 
   count: <F extends Filter<ModelI>>(filter: FilterParam<F, ModelI>) => Promise<{ total: number }>;
 
-  deleteOne: <F extends Filter<ModelI>>(filter: FilterParam<F, ModelI>) => Promise<{ deleted: boolean }>;
+  deleteOne: <F extends Filter<ModelI>>(
+    filter: FilterParam<F, ModelI>,
+    opts?: { session?: ClientSession }
+  ) => Promise<{ deleted: boolean }>;
+
+  deleteMany: <F extends Filter<ModelI>>(
+    filter: FilterParam<F, ModelI>,
+    opts?: { session?: ClientSession }
+  ) => Promise<{ deleted: boolean }>;
 }
 
 // UpdateQuery from the official mongoose code is not powerfull enough and need to be replaced
