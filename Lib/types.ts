@@ -41,7 +41,7 @@ export interface BridgeMongoModelI<ModelI> {
   deleteMany: <F extends Filter<ModelI>>(
     filter: FilterParam<F, ModelI>,
     opts?: { session?: ClientSession }
-  ) => Promise<{ deleted: boolean }>;
+  ) => Promise<{ deletedCount: number }>;
 }
 
 // UpdateQuery from the official mongoose code is not powerfull enough and need to be replaced
