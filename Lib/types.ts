@@ -12,8 +12,7 @@ export interface BridgeMongoModelI<ModelI> {
 
   findOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>>(
     filter: FilterParam<Fil, ModelI>,
-    proj?: Proj,
-    opts?: { session?: ClientSession }
+    opts?: { proj?: Proj; session?: ClientSession }
   ) => Promise<
     | ({ [key in keyof ModelI & keyof Proj]: Proj[key] extends 1 ? ModelI[key] : never } & { _id: string })
     | { error: { status: 404; name: 'Document not found' } }
@@ -22,12 +21,17 @@ export interface BridgeMongoModelI<ModelI> {
   updateOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>, Upd extends UpdateData<ModelI>>(
     filter: FilterParam<Fil, ModelI>,
     dataToUpdate: UpdateDataParam<Upd, ModelI>,
-    proj?: Proj,
-    opts?: { session?: ClientSession }
+    opts?: { proj?: Proj; session?: ClientSession }
   ) => Promise<
     | ({ [key in keyof ModelI & keyof Proj]: Proj[key] extends 0 ? never : ModelI[key] } & { _id: string })
     | { error: { status: 404; name: 'Document not found' } }
   >;
+
+  // updateMany: <Fil extends Filter<ModelI>, Upd extends UpdateData<ModelI>>(
+  //   filter: FilterParam<Fil, ModelI>,
+  //   dataToUpdate: UpdateDataParam<Upd, ModelI>,
+  //   opts?: { session?: ClientSession }
+  // ) => Promise<{ modifiedCount: number }>;
 
   exists: <F extends Filter<ModelI>>(filter: FilterParam<F, ModelI>) => Promise<{ exists: boolean }>;
 
