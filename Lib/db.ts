@@ -46,16 +46,12 @@ export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implement
     return res as any;
   };
 
-  // public updateMany: BMMI<ModelI>['updateMany'] = async (filter, dataToUpdate, opts) => {
-  //   const options = opts?.session ? { session: opts.session, new: true } : { new: true };
-  //   const promise = (this.mongoModel as any).findOneAndUpdate(filter, dataToUpdate, options);
-  //   const res = proj ? await promise.select(proj).lean() : await promise.lean();
+  public updateMany: BMMI<ModelI>['updateMany'] = async (filter, dataToUpdate, opts) => {
+    const options = opts?.session ? { session: opts.session } : {};
+    const res = await (this.mongoModel as any).updateMany(filter, dataToUpdate, options);
 
-  //   if (!res && opts?.session) throw new Error('Rollback transaction');
-  //   else if (!res) return { error: { status: 404, name: 'Document not found' } };
-
-  //   return res as any;
-  // };
+    return { modifiedCount: res.modifiedCount };
+  };
 
   public exists: BMMI<ModelI>['exists'] = async (filter) => ({
     exists: (await this.mongoModel.exists(filter)) !== null,

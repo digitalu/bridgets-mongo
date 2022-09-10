@@ -27,11 +27,11 @@ export interface BridgeMongoModelI<ModelI> {
     | { error: { status: 404; name: 'Document not found' } }
   >;
 
-  // updateMany: <Fil extends Filter<ModelI>, Upd extends UpdateData<ModelI>>(
-  //   filter: FilterParam<Fil, ModelI>,
-  //   dataToUpdate: UpdateDataParam<Upd, ModelI>,
-  //   opts?: { session?: ClientSession }
-  // ) => Promise<{ modifiedCount: number }>;
+  updateMany: <Fil extends Filter<ModelI>, Upd extends UpdateData<ModelI>>(
+    filter: FilterParam<Fil, ModelI>,
+    dataToUpdate: UpdateDataParam<Upd, ModelI>,
+    opts?: { session?: ClientSession }
+  ) => Promise<{ modifiedCount: number }>;
 
   exists: <F extends Filter<ModelI>>(filter: FilterParam<F, ModelI>) => Promise<{ exists: boolean }>;
 
