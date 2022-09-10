@@ -18,7 +18,8 @@ export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implement
       delete res.__v;
       return res;
     } catch (err: any) {
-      if (err.code !== 11000) throw new Error('Error create mongo not handled: ', err);
+      if (opts?.session) throw new Error('Rollback transaction');
+      else if (err.code !== 11000) throw new Error('Error create mongo not handled: ', err);
       return { error: { status: 409, name: 'Already exists', data: err.keyValue } };
     }
   };
@@ -28,7 +29,8 @@ export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implement
     const promise = this.mongoModel.findOne(filter, options);
     const res = proj ? await promise.select(proj).lean() : await promise.lean();
 
-    if (!res) return { error: { status: 404, name: 'Document not found' } };
+    if (!res && opts?.session) throw new Error('Rollback transaction');
+    else if (!res) return { error: { status: 404, name: 'Document not found' } };
 
     return res as any;
   };
@@ -38,7 +40,8 @@ export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implement
     const promise = (this.mongoModel as any).findOneAndUpdate(filter, dataToUpdate, options);
     const res = proj ? await promise.select(proj).lean() : await promise.lean();
 
-    if (!res) return { error: { status: 404, name: 'Document not found' } };
+    if (!res && opts?.session) throw new Error('Rollback transaction');
+    else if (!res) return { error: { status: 404, name: 'Document not found' } };
 
     return res as any;
   };
@@ -54,6 +57,8 @@ export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implement
   public deleteOne: BMMI<ModelI>['deleteOne'] = async (filter, opts) => {
     const options = opts?.session ? { session: opts.session } : {};
     const res: any = await this.mongoModel.deleteOne(filter, options);
+
+    if (opts?.session && res.deletedCount === 0) throw new Error('Rollback transaction');
 
     return { deleted: res.deletedCount !== 0 };
   };
