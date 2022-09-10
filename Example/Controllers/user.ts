@@ -17,7 +17,7 @@ export class User extends Controller {
 
   findOne = this.handler({
     body: ZO({ _id }),
-    resolve: async ({ body }) => DB.user.findOne({ list: '' }, { name: 1 }),
+    resolve: async ({ body }) => DB.user.findOne({ list: '' }, { proj: { name: 1 } }),
   });
 
   exists = this.handler({
@@ -33,7 +33,8 @@ export class User extends Controller {
   updateOne = this.handler({
     query: ZO({ _id }),
     body: ZO({ event: z.boolean() }),
-    resolve: async ({ query, body }) => DB.user.updateOne(query, { emailPreferences: body }, { name: 1, email: 1 }),
+    resolve: async ({ query, body }) =>
+      DB.user.updateOne(query, { emailPreferences: body }, { proj: { name: 1, email: 1 } }),
   });
 
   deleteOne = this.handler({
