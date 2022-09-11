@@ -2,13 +2,20 @@ import { CreateData, CreateDataParam, Projection, FilterParam, Filter, UpdateDat
 import { ClientSession } from 'mongoose';
 
 export interface BridgeMongoModelI<ModelI> {
+  onCreate: (data: ModelI) => Promise<void>;
+
   create: <Crea extends CreateData<ModelI>>(
-    p: CreateDataParam<Crea, ModelI> | Array<CreateDataParam<Crea, ModelI>>,
+    p: CreateDataParam<Crea, ModelI>,
     opts?: { session?: ClientSession }
   ) => Promise<
     | (Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {}))
     | { error: { status: 409; name: 'Already exists'; data: Record<any, any> } }
   >;
+
+  createMany: <Crea extends CreateData<ModelI>>(
+    p: Array<CreateDataParam<Crea, ModelI>>,
+    opts?: { session?: ClientSession }
+  ) => Promise<Array<Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {})>>;
 
   findOne: <Proj extends Projection<ModelI>, Fil extends Filter<ModelI>>(
     filter: FilterParam<Fil, ModelI>,

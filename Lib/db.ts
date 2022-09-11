@@ -8,19 +8,36 @@ type BMMI<ModelI> = BridgeMongoModelI<ModelI>;
 export class BridgeMongoModel<ModelI, DBI extends Record<string, any>> implements BMMI<ModelI> {
   constructor(public mongoModel: MongoModel<ModelI>) {}
 
+  public onCreate: BMMI<ModelI>['onCreate'] = async (data) => {};
+
   public aggregate = (): AggI<ModelI, DBI> => new Aggregate<ModelI, DBI>(this.mongoModel);
 
   public create: BMMI<ModelI>['create'] = async (data, opts) => {
     try {
-      if (!('length' in data)) data = [data];
       const options = opts?.session ? { session: opts.session } : {};
-      const res: any = ((await this.mongoModel.create(data), options) as any).toJSON();
-      delete res.__v;
+      const res: any = ((await this.mongoModel.create([data], options)) as any)[0].toJSON();
+
+      this.onCreate(res);
+
       return res;
     } catch (err: any) {
       if (opts?.session) throw new Error('Rollback transaction');
       else if (err.code !== 11000) throw new Error('Error create mongo not handled: ', err);
       return { error: { status: 409, name: 'Already exists', data: err.keyValue } };
+    }
+  };
+
+  public createMany: BMMI<ModelI>['createMany'] = async (data, opts) => {
+    try {
+      const options = opts?.session ? { session: opts.session } : {};
+      const res: any = ((await this.mongoModel.create(data, options)) as any).map((obj: any) => obj.toJSON());
+
+      res.forEach((obj: any) => this.onCreate(obj));
+
+      return res;
+    } catch (err: any) {
+      if (opts?.session) throw new Error('Rollback transaction');
+      console.error(err);
     }
   };
 
