@@ -2,7 +2,9 @@ import { CreateData, CreateDataParam, Projection, FilterParam, Filter, UpdateDat
 import { ClientSession } from 'mongoose';
 
 export interface BridgeMongoModelI<ModelI> {
-  onCreate: (data: ModelI) => Promise<void>;
+  // onCreate: (data: ModelI) => Promise<void>;
+  // onUpdate: (data: ModelI) => Promise<void>;
+  // onDelete: (data: ModelI) => Promise<void>;
 
   create: <Crea extends CreateData<ModelI>>(
     p: CreateDataParam<Crea, ModelI>,
