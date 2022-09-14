@@ -47,19 +47,21 @@ export class User extends Controller {
     resolve: async ({ query }) => {
       const res = await DB.user
         .aggregate()
-        .project({ name: 1, email: 1, age: 1 })
-        .match(query || {})
-        .lookup(
-          { from: 'publication', as: 'yo', let: { userId: '$_id' } },
-          (pub, { userId }) => pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
-          //pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
-          // pub.match({$expr: {$eq: [""]}})
-        )
-        .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })
-        .project({ name: 1, age: 1, yo: { text: 1 } })
-        .limit(1)
-        .unset('age')
-        .sort({ name: -1 })
+        .project({ name: 1, email: 1, age: 1, createdAt: 1 })
+        .projectAssign({ ddd: { $day: 'createdAt' } })
+        .match({ ddd: 90 })
+        // .match(query || {})
+        // .lookup(
+        //   { from: 'publication', as: 'yo', let: { userId: '$_id' } },
+        //   (pub, { userId }) => pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
+        //   //pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
+        //   // pub.match({$expr: {$eq: [""]}})
+        // )
+        // .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })
+        // .project({ name: 1, age: 1, yo: { text: 1 } })
+        // .limit(1)
+        // .unset('age')
+        // .sort({ name: -1 })
         .paginate(0, 10);
 
       // res.data[0].yo.

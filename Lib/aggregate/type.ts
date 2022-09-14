@@ -1,7 +1,7 @@
 import { PipelineStage, FilterQuery } from 'mongoose';
 import { Filter, FilterParam, StrictPropertyCheck } from '../utility';
 
-type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P };
+type KeysWithValsOfType<T, V> = keyof { [P in keyof T as T[P] extends V ? P : never]: P } & string;
 
 type Plurial<T extends string> = T extends `${string}${'s' | 'sh' | 'ch' | 'x' | 'z'}` ? `${T}es` : `${T}s`;
 // let a: Test['ah.oui']
@@ -19,10 +19,29 @@ type ProjAssign<ModelI> = Record<string, `$${FlatPath<ModelI> extends string ? F
 
 type ProjectionENERVAX<ModelI> = ProjBase<ModelI> & ProjAssign<ModelI>;
 
+type DateOperator =
+  | '$year'
+  | '$month'
+  | '$day'
+  | '$hour'
+  | '$minute'
+  | '$second'
+  | '$millisecond'
+  | '$dayOfYear'
+  | '$dayOfWeek'
+  | '$week';
+
 type proj = 0 | 1;
+
+type ProjDateAssign<ModelI> = {
+  [key: string]: { [key in DateOperator]?: KeysWithValsOfType<Required<ModelI>, Date> };
+};
+
 type Projection<ModelI> = {
   [key in keyof ModelI]?: ModelI[key] extends Record<any, any> ? proj | Projection<ModelI[key]> : proj;
 };
+
+// { [key: string]: { [key in dateOperator]: `$${KeysWithValsOfType<ModelI, Date>}` } };
 
 // type ProjectionParam<P, ModelI> = P & StrictPropertyCheck<P, Projection<ModelI>, 'Only property of the model are allowed'>;
 
@@ -51,6 +70,15 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   paginate: (skip: number, limit: number) => Promise<{ data: ModelI[]; total: number; skip: number; limit: number }>;
 
   sort: (sortData: SortData<ModelI>) => AggI<ModelI, AllDBI>;
+
+  projectAssign: <Proj extends ProjDateAssign<ModelI>>(
+    p: Proj
+  ) => AggI<
+    ModelI & {
+      [key in keyof Proj]: number;
+    },
+    AllDBI
+  >;
 
   project: <Proj extends Projection<ModelI>>(
     p: Proj

@@ -3,10 +3,13 @@ import { Model as MongoModel, PipelineStage } from 'mongoose';
 import plural from 'pluralize';
 import { AggI } from './type';
 
-export class Aggregate<ModelI, AllDBI> implements AggI<ModelI, AllDBI> {
+export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements AggI<ModelI, AllDBI> {
   constructor(private mongoModel: MongoModel<ModelI> = {} as any, public pipe: PipelineStage[] = []) {}
 
   public project: AggI<ModelI, AllDBI>['project'] = (proj) =>
+    new Aggregate(this.mongoModel, [...this.pipe, { $project: proj }]) as any;
+
+  public projectAssign: AggI<ModelI, AllDBI>['projectAssign'] = (proj) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $project: proj }]) as any;
 
   public match: AggI<ModelI, AllDBI>['match'] = (match) =>
