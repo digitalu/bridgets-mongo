@@ -22,7 +22,7 @@ type ProjectionENERVAX<ModelI> = ProjBase<ModelI> & ProjAssign<ModelI>;
 type DateOperator =
   | '$year'
   | '$month'
-  | '$day'
+  | '$dayOfMonth'
   | '$hour'
   | '$minute'
   | '$second'
