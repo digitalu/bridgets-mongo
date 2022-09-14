@@ -9,8 +9,8 @@ export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements Ag
   public project: AggI<ModelI, AllDBI>['project'] = (proj) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $project: proj }]) as any;
 
-  public projectDate: AggI<ModelI, AllDBI>['projectDate'] = (proj) =>
-    new Aggregate(this.mongoModel, [...this.pipe, { $project: proj }]) as any;
+  public addFields: AggI<ModelI, AllDBI>['addFields'] = (proj) =>
+    new Aggregate(this.mongoModel, [...this.pipe, { $addFields: proj }]) as any;
 
   public match: AggI<ModelI, AllDBI>['match'] = (match) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $match: match }]) as any;

@@ -33,17 +33,15 @@ type DateOperator =
 
 type proj = 0 | 1;
 
-type ProjDateAssign<ModelI> = {
-  [key: string]: { [key in DateOperator]?: KeysWithValsOfType<Required<ModelI>, Date> };
+type AddDate<ModelI> = { [key in DateOperator]?: KeysWithValsOfType<Required<ModelI>, Date> };
+
+type AddFields<ModelI> = {
+  [key: string]: AddDate<ModelI>;
 };
 
 type Projection<ModelI> = {
   [key in keyof ModelI]?: ModelI[key] extends Record<any, any> ? proj | Projection<ModelI[key]> : proj;
 };
-
-// { [key: string]: { [key in dateOperator]: `$${KeysWithValsOfType<ModelI, Date>}` } };
-
-// type ProjectionParam<P, ModelI> = P & StrictPropertyCheck<P, Projection<ModelI>, 'Only property of the model are allowed'>;
 
 type SortData<ModelI> = { [key in keyof ModelI]?: -1 | 1 };
 
@@ -54,9 +52,6 @@ type ExtractFromPath<Path extends string, Obj extends any> = Path extends `${inf
   : Path extends keyof Obj
   ? Obj[Path]
   : never;
-
-// type Match<ModelI> = Filter<ModelI> & { $expr?: { $eq?: [`$${keyof ModelI extends string ? keyof ModelI : never}`, any] } };
-// type MatchParam<M, ModelI> = M & StrictPropertyCheck<M, Match<ModelI>, 'Only property of the model are allowed'>;
 
 type ExecProj<ModelI, Proj extends Projection<ModelI>> = {
   [key in keyof ModelI & keyof Proj]: Proj[key] extends Record<any, any> ? ExecProj<ModelI[key], Proj[key]> : ModelI[key];
@@ -71,7 +66,7 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
 
   sort: (sortData: SortData<ModelI>) => AggI<ModelI, AllDBI>;
 
-  projectDate: <Proj extends ProjDateAssign<ModelI>>(
+  addFields: <Proj extends AddFields<ModelI>>(
     p: Proj
   ) => AggI<
     ModelI & {
@@ -147,3 +142,10 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
     AllDBI
   >;
 }
+
+// { [key: string]: { [key in dateOperator]: `$${KeysWithValsOfType<ModelI, Date>}` } };
+
+// type ProjectionParam<P, ModelI> = P & StrictPropertyCheck<P, Projection<ModelI>, 'Only property of the model are allowed'>;
+
+// type Match<ModelI> = Filter<ModelI> & { $expr?: { $eq?: [`$${keyof ModelI extends string ? keyof ModelI : never}`, any] } };
+// type MatchParam<M, ModelI> = M & StrictPropertyCheck<M, Match<ModelI>, 'Only property of the model are allowed'>;
