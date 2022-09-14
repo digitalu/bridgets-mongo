@@ -48,7 +48,7 @@ export class User extends Controller {
       const res = await DB.user
         .aggregate()
         .project({ name: 1, email: 1, age: 1, createdAt: 1 })
-        .addFields({ ddd: { $dayOfMonth: 'createdAt' } })
+        .addFields({ ddd: { $dayOfMonth: '$createdAt' } })
         .match({ ddd: 90 })
         // .match(query || {})
         // .lookup(

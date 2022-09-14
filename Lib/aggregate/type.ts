@@ -33,7 +33,7 @@ type DateOperator =
 
 type proj = 0 | 1;
 
-type AddDate<ModelI> = { [key in DateOperator]?: KeysWithValsOfType<Required<ModelI>, Date> };
+type AddDate<ModelI> = { [key in DateOperator]?: `$${KeysWithValsOfType<Required<ModelI>, Date>}` };
 
 type AddFields<ModelI> = {
   [key: string]: AddDate<ModelI>;
