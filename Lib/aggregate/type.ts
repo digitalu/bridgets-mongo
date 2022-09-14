@@ -71,7 +71,7 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
 
   sort: (sortData: SortData<ModelI>) => AggI<ModelI, AllDBI>;
 
-  projectAssign: <Proj extends ProjDateAssign<ModelI>>(
+  projectDate: <Proj extends ProjDateAssign<ModelI>>(
     p: Proj
   ) => AggI<
     ModelI & {
