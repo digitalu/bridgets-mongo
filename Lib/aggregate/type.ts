@@ -12,6 +12,44 @@ type FlatPath<T> = keyof {
     : keyof T]: 1;
 };
 
+type ExtractFromPath<Path extends string, Obj extends any> = Path extends `${infer A}.${infer B}`
+  ? A extends keyof Obj
+    ? ExtractFromPath<B, Obj[A]>
+    : never
+  : Path extends keyof Obj
+  ? Obj[Path]
+  : never;
+
+type ValueFromFlatPath<Data, Path> = Path extends `${infer A & keyof Data & string}.${infer B}`
+  ? A extends keyof Data
+    ? ValueFromFlatPath<Data[A], B>
+    : 'Wrong Path'
+  : Path extends keyof Data
+  ? Data[Path]
+  : 'Wrong Path';
+
+const test = {
+  a: 4,
+  nb: 8,
+  sah: [1, 2],
+  too: {
+    po: 9,
+    pal: {
+      op: '',
+    },
+  },
+};
+
+type IndexArray<Data> = `${KeysWithValsOfType<Required<Data>, any[]> & string}.${number}`;
+
+type TT = KeysWithValsOfType<typeof test, Array<any>>;
+
+type T = FlatPath<typeof test>;
+
+type HHH = IndexArray<typeof test>;
+
+type kkld = ValueFromFlatPath<typeof test, 'too.pal.op'>;
+
 type ProjBase<ModelI> = {
   [key in `${FlatPath<ModelI> extends string ? FlatPath<ModelI> : ''}`]?: 0 | 1;
 };
@@ -35,8 +73,10 @@ type proj = 0 | 1;
 
 type AddDate<ModelI> = { [key in DateOperator]?: `$${KeysWithValsOfType<Required<ModelI>, Date>}` };
 
+type AddAssign<ModelI> = { $assign?: `$${FlatPath<ModelI> & string}` };
+
 type AddFields<ModelI> = {
-  [key: string]: AddDate<ModelI>;
+  [key: string]: AddDate<ModelI> | AddAssign<ModelI> | string | number;
 };
 
 type Projection<ModelI> = {
@@ -45,19 +85,15 @@ type Projection<ModelI> = {
 
 type SortData<ModelI> = { [key in keyof ModelI]?: -1 | 1 };
 
-type ExtractFromPath<Path extends string, Obj extends any> = Path extends `${infer A}.${infer B}`
-  ? A extends keyof Obj
-    ? ExtractFromPath<B, Obj[A]>
-    : never
-  : Path extends keyof Obj
-  ? Obj[Path]
-  : never;
-
 type ExecProj<ModelI, Proj extends Projection<ModelI>> = {
   [key in keyof ModelI & keyof Proj]: Proj[key] extends Record<any, any> ? ExecProj<ModelI[key], Proj[key]> : ModelI[key];
 } & {
   _id: string;
 };
+
+type Group<ModelI> = {
+  _id: null | `$${keyof ModelI & string}`;
+} & { [key: string]: `$${keyof ModelI & string}` };
 
 export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   pipe: PipelineStage[];
@@ -70,7 +106,11 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
     p: Proj
   ) => AggI<
     ModelI & {
-      [key in keyof Proj]: number;
+      [key in keyof Proj]: Proj[key] extends AddDate<ModelI>
+        ? number
+        : Proj[key] extends AddAssign<ModelI> & { $assign: `$${infer Path}` }
+        ? ValueFromFlatPath<ModelI, Path>
+        : Proj[key];
     },
     AllDBI
   >;
@@ -95,13 +135,26 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
     AllDBI
   >;
 
-  match: <MP extends Filter<ModelI>>(match: FilterParam<MP, ModelI>) => AggI<ModelI, AllDBI>;
+  match: <MP extends Filter<ModelI>>(match: MP) => AggI<ModelI, AllDBI>;
 
   limit: (limit: number) => AggI<ModelI, AllDBI>;
 
   unset: <UN extends Array<keyof ModelI> | keyof ModelI>(
     unsetP: UN
   ) => AggI<{ [key in Exclude<keyof ModelI, UN extends Array<any> ? UN[number] : UN>]: ModelI[key] }, AllDBI>;
+
+  group: <G extends Group<ModelI>>(
+    p: G
+  ) => AggI<
+    {
+      [key in keyof G]: G[key] extends `$${infer KeyFromModel}`
+        ? KeyFromModel extends keyof ModelI
+          ? ModelI[KeyFromModel]
+          : never
+        : never;
+    },
+    AllDBI
+  >;
 
   lookup: <
     Let extends Record<string, `$${keyof ModelI extends string ? keyof ModelI : never}`>,

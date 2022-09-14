@@ -6,9 +6,9 @@ import { BridgeMongoModel } from '../../Lib';
 type ZodSchema<T> = { [key in keyof T]-?: ZodType<T[key]> };
 
 export const publicationZod: ZodSchema<DBTypes['publication']> = {
-  _id: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i),
+  _id: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i) as any,
   text: z.string(),
-  user: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i),
+  user: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i) as any,
   createdAt: z.date(),
   updatedAt: z.date(),
 };

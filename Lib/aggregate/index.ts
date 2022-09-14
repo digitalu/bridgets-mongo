@@ -34,6 +34,9 @@ export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements Ag
     return new Aggregate(this.mongoModel, [...this.pipe, { $lookup: lookup }]) as any;
   };
 
+  public group: AggI<ModelI, AllDBI>['group'] = (group) =>
+    new Aggregate(this.mongoModel, [...this.pipe, { $group: group } as any]) as any;
+
   public unset: AggI<ModelI, AllDBI>['unset'] = (unset) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $unset: unset } as any]) as any;
 

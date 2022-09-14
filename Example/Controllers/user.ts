@@ -15,32 +15,32 @@ export class User extends Controller {
     resolve: ({ body }) => DB.user.create(body),
   });
 
-  findOne = this.handler({
-    body: ZO({ _id }),
-    resolve: async ({ body }) => DB.user.findOne({ list: '' }, { proj: { name: 1 } }),
-  });
+  // findOne = this.handler({
+  //   body: ZO({ _id }),
+  //   resolve: async ({ body }) => DB.user.findOne({ list: '' }, { proj: { name: 1 } }),
+  // });
 
-  exists = this.handler({
-    query: ZO({ _id }),
-    resolve: ({ query }) => DB.user.exists(query),
-  });
+  // exists = this.handler({
+  //   query: ZO({ _id }),
+  //   resolve: ({ query }) => DB.user.exists(query),
+  // });
 
-  count = this.handler({
-    query: ZO({ _id }),
-    resolve: async ({ query }) => DB.user.count(query),
-  });
+  // count = this.handler({
+  //   query: ZO({ _id }),
+  //   resolve: async ({ query }) => DB.user.count(query),
+  // });
 
-  updateOne = this.handler({
-    query: ZO({ _id }),
-    body: ZO({ event: z.boolean() }),
-    resolve: async ({ query, body }) =>
-      DB.user.updateOne(query, { emailPreferences: body }, { proj: { name: 1, email: 1 } }),
-  });
+  // updateOne = this.handler({
+  //   query: ZO({ _id }),
+  //   body: ZO({ event: z.boolean() }),
+  //   resolve: async ({ query, body }) =>
+  //     DB.user.updateOne(query, { emailPreferences: body }, { proj: { name: 1, email: 1 } }),
+  // });
 
-  deleteOne = this.handler({
-    query: ZO({ _id }),
-    resolve: async ({ query }) => DB.user.deleteOne(query),
-  });
+  // deleteOne = this.handler({
+  //   query: ZO({ _id }),
+  //   resolve: async ({ query }) => DB.user.deleteOne(query),
+  // });
 
   getPage = this.handler({
     query: ZO({ name: name.optional(), email: email.optional() }),
@@ -49,14 +49,21 @@ export class User extends Controller {
         .aggregate()
         .project({ name: 1, email: 1, age: 1, createdAt: 1 })
         .addFields({ ddd: { $dayOfMonth: '$createdAt' } })
-        .match({ ddd: 90 })
+        // .match({'dd'})
+        // .match({''})
         // .match(query || {})
-        // .lookup(
-        //   { from: 'publication', as: 'yo', let: { userId: '$_id' } },
-        //   (pub, { userId }) => pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
-        //   //pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
-        //   // pub.match({$expr: {$eq: [""]}})
-        // )
+        .lookup(
+          { from: 'publication', as: 'yo', let: { userId: '$_id' } },
+          (pub, { userId }) => pub.project({ text: 1 })
+          //pub.match({ $expr: { $eq: ['$user', userId] } }).project({ text: 1 })
+          // pub.match({$expr: {$eq: [""]}})
+        )
+
+        .unwind({ path: '$yo' })
+        .addFields({ dda: { $assign: '$yo.text' } })
+        .group({ _id: '$name', sah: '$createdAt' })
+        // .match({"sah"})
+        // .match({''})
         // .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })
         // .project({ name: 1, age: 1, yo: { text: 1 } })
         // .limit(1)

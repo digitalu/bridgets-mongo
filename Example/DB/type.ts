@@ -1,6 +1,8 @@
+import { ObjectId } from 'mongoose';
+
 export type DBTypes = {
   user: {
-    _id: string;
+    _id: ObjectId;
     name: string;
     email: string;
     avatar?: string;
@@ -13,9 +15,9 @@ export type DBTypes = {
     updatedAt: Date;
   };
   publication: {
-    _id: string;
+    _id: ObjectId;
     text: string;
-    user: string;
+    user: ObjectId;
     createdAt: Date;
     updatedAt: Date;
   };

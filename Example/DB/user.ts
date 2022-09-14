@@ -6,7 +6,7 @@ import BridgeMongoModel from '../../Lib';
 type ZodSchema<T> = { [key in keyof T]-?: ZodType<T[key]> };
 
 export const userZod: ZodSchema<DBTypes['user']> = {
-  _id: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i),
+  _id: z.string().regex(/^(?=[a-f\d]{24}$)(\d+[a-f]|[a-f]+\d)/i) as any,
   name: z.string(),
   email: z.string().email(),
   avatar: z.string(),
