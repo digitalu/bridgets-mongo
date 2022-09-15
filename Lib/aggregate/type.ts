@@ -131,7 +131,7 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
             : never
           : never
         : G[key] extends { $push: '$$ROOT' }
-        ? ModelI
+        ? ModelI[]
         : never;
     },
     AllDBI
