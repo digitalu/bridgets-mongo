@@ -61,7 +61,7 @@ export class User extends Controller {
 
         .unwind({ path: '$yo' })
         .addFields({ dda: { $assign: '$yo.text' } })
-        .group({ _id: '$name', sah: '$createdAt' })
+        .group({ _id: '$age', a: { $push: '$$ROOT' } })
         // .match({"sah"})
         // .match({''})
         // .unwind({ path: '$yo', preserveNullAndEmptyArrays: false })

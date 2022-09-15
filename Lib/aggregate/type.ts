@@ -91,14 +91,51 @@ type ExecProj<ModelI, Proj extends Projection<ModelI>> = {
   _id: string;
 };
 
+// type Group<ModelI> = {
+//   _id: `$${keyof ModelI & string}`;
+//   fields: { [key: string]: { $push: '$$ROOT' } };
+// };
+
 type Group<ModelI> = {
-  _id: null | `$${keyof ModelI & string}`;
-} & { [key: string]: `$${keyof ModelI & string}` };
+  [key: string]: `$${keyof ModelI & string}` | { $push: '$$ROOT' };
+};
+
+// type Group<ModelI> = { [key: string]: { $push: '$$ROOT' } } & {
+//   _id: `$${keyof ModelI & string}`; //| null;
+// };
+
+// type PushRoot = { [key: string]: { $push: '$$ROOT' } };
+
+//{ [key: string]: `$${keyof ModelI & string}` };
 
 export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   pipe: PipelineStage[];
 
   paginate: (skip: number, limit: number) => Promise<{ data: ModelI[]; total: number; skip: number; limit: number }>;
+
+  group: <G extends Group<ModelI>>(
+    p: G
+  ) => AggI<
+    // {
+    //   [key in keyof G]: G[key] extends `$${infer KeyFromModel}`
+    //     ? KeyFromModel extends keyof ModelI
+    //       ? ModelI[KeyFromModel]
+    //       : never
+    //     : never;
+    // },
+    {
+      [key in keyof G]: key extends '_id'
+        ? G[key] extends `$${infer KeyFromModel}`
+          ? KeyFromModel extends keyof ModelI
+            ? ModelI[KeyFromModel]
+            : never
+          : never
+        : G[key] extends { $push: '$$ROOT' }
+        ? ModelI
+        : never;
+    },
+    AllDBI
+  >;
 
   sort: (sortData: SortData<ModelI>) => AggI<ModelI, AllDBI>;
 
@@ -142,19 +179,6 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   unset: <UN extends Array<keyof ModelI> | keyof ModelI>(
     unsetP: UN
   ) => AggI<{ [key in Exclude<keyof ModelI, UN extends Array<any> ? UN[number] : UN>]: ModelI[key] }, AllDBI>;
-
-  group: <G extends Group<ModelI>>(
-    p: G
-  ) => AggI<
-    {
-      [key in keyof G]: G[key] extends `$${infer KeyFromModel}`
-        ? KeyFromModel extends keyof ModelI
-          ? ModelI[KeyFromModel]
-          : never
-        : never;
-    },
-    AllDBI
-  >;
 
   lookup: <
     Let extends Record<string, `$${keyof ModelI extends string ? keyof ModelI : never}`>,
