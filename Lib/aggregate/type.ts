@@ -116,13 +116,6 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
   group: <G extends Group<ModelI>>(
     p: G
   ) => AggI<
-    // {
-    //   [key in keyof G]: G[key] extends `$${infer KeyFromModel}`
-    //     ? KeyFromModel extends keyof ModelI
-    //       ? ModelI[KeyFromModel]
-    //       : never
-    //     : never;
-    // },
     {
       [key in keyof G]: key extends '_id'
         ? G[key] extends `$${infer KeyFromModel}`

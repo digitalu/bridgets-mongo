@@ -9,8 +9,15 @@ export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements Ag
   public project: AggI<ModelI, AllDBI>['project'] = (proj) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $project: proj }]) as any;
 
-  public addFields: AggI<ModelI, AllDBI>['addFields'] = (proj) =>
-    new Aggregate(this.mongoModel, [...this.pipe, { $addFields: proj }]) as any;
+  public addFields: AggI<ModelI, AllDBI>['addFields'] = (proj) => {
+    const realProj: any = {};
+    Object.entries(([key, value]: any) => {
+      if (value.$assign) realProj[key] = value.$assign;
+      else realProj[key] = value;
+    });
+    console.log(realProj);
+    return new Aggregate(this.mongoModel, [...this.pipe, { $addFields: proj }]) as any;
+  };
 
   public match: AggI<ModelI, AllDBI>['match'] = (match) =>
     new Aggregate(this.mongoModel, [...this.pipe, { $match: match }]) as any;
