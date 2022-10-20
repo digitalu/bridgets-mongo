@@ -54,7 +54,7 @@ export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements Ag
       paramLookupAggregate[key] = `$$${key}`;
     });
 
-    lookup.pipeline = [...aggregateMethod(new Aggregate(), paramLookupAggregate).pipe, { $count: 'Total' }];
+    lookup.pipeline = [...aggregateMethod(new Aggregate(), paramLookupAggregate).pipe, { $count: 'total' }];
 
     return new Aggregate(this.mongoModel, [...this.pipe, { $lookup: lookup }]) as any;
   };
