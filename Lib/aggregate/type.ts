@@ -113,6 +113,8 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
 
   paginate: (skip: number, limit: number) => Promise<{ data: ModelI[]; total: number; skip: number; limit: number }>;
 
+  // count:
+
   group: <G extends Group<ModelI>>(
     p: G
   ) => AggI<
@@ -192,6 +194,26 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
       }
     ) => AggI<NewModel, AllDBI>
   ) => AggI<ModelI & { [P in AS]: NewModel[] }, AllDBI>;
+
+  lookupCount: <
+    Let extends Record<string, `$${keyof ModelI extends string ? keyof ModelI : never}`>,
+    From extends keyof AllDBI & string,
+    NewModel,
+    AS extends string = From
+  >(
+    p1: {
+      from: From;
+      //from: Plurial<From>;
+      as: AS;
+      let?: Let;
+    },
+    p2: (
+      p1: AggI<AllDBI[From], AllDBI>,
+      p2: {
+        [key in keyof Let]: `$$${key extends string ? key : never}`;
+      }
+    ) => AggI<NewModel, AllDBI>
+  ) => AggI<ModelI & { [P in AS]: number }, AllDBI>;
 
   unwind: <
     KeyOfArrayToUnwind extends keyof ModelI & KeysWithValsOfType<ModelI, Array<any>>,

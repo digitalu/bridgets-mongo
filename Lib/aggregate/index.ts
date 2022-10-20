@@ -15,7 +15,6 @@ export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements Ag
       if (value.$assign) realProj[key] = value.$assign;
       else realProj[key] = value;
     });
-    console.log(realProj);
     return new Aggregate(this.mongoModel, [...this.pipe, { $addFields: realProj }]) as any;
   };
 
@@ -37,6 +36,25 @@ export class Aggregate<ModelI, AllDBI extends Record<string, any>> implements Ag
     });
 
     lookup.pipeline = aggregateMethod(new Aggregate(), paramLookupAggregate).pipe;
+
+    return new Aggregate(this.mongoModel, [...this.pipe, { $lookup: lookup }]) as any;
+  };
+
+  public lookupCount: AggI<ModelI, AllDBI>['lookupCount'] = (lookupParam, aggregateMethod) => {
+    let lookup: any = {
+      from: plural(lookupParam.from),
+      as: lookupParam.as,
+    };
+
+    if (lookupParam.let) lookup.let = lookupParam.let;
+
+    let paramLookupAggregate: any = {};
+
+    Object.keys(lookupParam.let || {}).forEach((key) => {
+      paramLookupAggregate[key] = `$$${key}`;
+    });
+
+    lookup.pipeline = [...aggregateMethod(new Aggregate(), paramLookupAggregate).pipe, { $count: 'Total' }];
 
     return new Aggregate(this.mongoModel, [...this.pipe, { $lookup: lookup }]) as any;
   };
