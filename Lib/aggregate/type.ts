@@ -213,7 +213,7 @@ export interface AggI<ModelI, AllDBI extends Record<string, any>> {
         [key in keyof Let]: `$$${key extends string ? key : never}`;
       }
     ) => AggI<NewModel, AllDBI>
-  ) => AggI<ModelI & { [P in AS]: number }, AllDBI>;
+  ) => AggI<ModelI & { [P in AS]: [{ total: number }] }, AllDBI>;
 
   unwind: <
     KeyOfArrayToUnwind extends keyof ModelI & KeysWithValsOfType<ModelI, Array<any>>,
