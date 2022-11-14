@@ -11,7 +11,7 @@ export interface BridgeMongoModelI<ModelI> {
     opts?: { session?: ClientSession }
   ) => Promise<
     | (Crea & (ModelI extends { createdAt: Date } ? { _id: string; createdAt: Date; updatedAt: Date } : {}))
-    | { error: { status: 409; name: 'Already exists'; data: Record<any, any> } }
+    | { error: { status: 409; name: 'Already exists'; data?: any } }
   >;
 
   createMany: <Crea extends CreateData<ModelI>>(
